@@ -5,7 +5,13 @@
     "@rails/webpacker": "4.2.2",
     "bootstrap": "^4.4.1",
     "jquery": "^3.4.1",
-    "popper.js": "^1.16.1"
+    "popper.js": "^1.16.1",
+    "vue": "^2.6.11",
+    "vue-loader": "^15.9.1",
+    "vue-template-compiler": "^2.6.11",
+    "vue-textarea-autosize": "^1.1.1",
+    "vue-turbolinks": "^2.1.0",
+    "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
     "webpack-dev-server": "^3.10.3"

@@ -1,0 +1,16 @@
+<div class='a-bit-of-margin'>
+  <p id="notice"><%= notice %></p>
+
+  <p>
+    <strong>Card:</strong>
+    <%= @label.cards %>
+  </p>
+
+  <p>
+    <strong>Name:</strong>
+    <%= @label.name %>
+  </p>
+
+  <%= link_to 'Edit', edit_label_path(@label) %> |
+  <%= link_to 'Back', labels_path %>
+</div>

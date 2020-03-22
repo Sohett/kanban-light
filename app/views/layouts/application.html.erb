@@ -3,18 +3,18 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>TODO</title>
+    <%= favicon_link_tag asset_path('flame.png') %>
+    <title>Kanban Light</title>
     <%= csrf_meta_tags %>
     <%= action_cable_meta_tag %>
-    <%= stylesheet_link_tag 'application', media: 'all' %>
-    <%#= stylesheet_pack_tag 'application', media: 'all' %> <!-- Uncomment if you import CSS in app/javascript/packs/application.js -->
+    <%= stylesheet_link_tag     'application', media: 'all', 'data-turbolinks-tracks': 'reload' %>
+    <%= stylesheet_pack_tag     'application', media: 'all', 'data-turbolinks-tracks': 'reload' %>
+    <%= javascript_include_tag  'application', 'data-turbolinks-tracks': 'reload' %>
+    <%= javascript_pack_tag     'application', 'data-turbolinks-tracks': 'reload' %>
   </head>
   <body>
     <%= render 'shared/navbar' %>
     <%= render 'shared/flashes' %>
     <%= yield %>
-    <%= javascript_include_tag 'application' %>
-
-    <%= javascript_pack_tag 'application' %>
   </body>
 </html>
