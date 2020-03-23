@@ -14,21 +14,22 @@
     <div
       v-if='editing'
       class="modal show"
-      @click='closeModal'
+      @click='closeModalButton'
       style="display: block;"
     >
       <div class="modal-dialog">
         <div class="modal-content content" @click='closeEditTitle'>
           <div class="modal-header">
-            <a v-if='!editingTitle' @click='editingTitle = true' class='edit-card-title'>
+            <a v-if='!editingTitle' @click='startEditingTitle' class='edit-card-title'>
               <h5 class="modal-title">{{name}}</h5>
             </a>
-            <textarea-autosize
-              v-if='editingTitle'
+            <textarea
+              v-show='editingTitle'
               class="form-control card-title"
               v-model="name"
               :min-height="10"
-            />
+              ref="editingTitleTextArea"
+            ></textarea>
           </div>
           <div class="modal-body">
             <div v-if='card.labels.length' class="row labels">
@@ -51,46 +52,50 @@
             />
             <p class='hint' v-if='editingDescription' >💡You can use HTML and inline CSS to style your description.</p>
             <!-- editingDescription Button -->
-            <button
-              v-if='!editingDescription'
-              class="btn btn-sm btn-light"
-              type="button"
-              name="edit-description"
-              @click='startEditingDescriptionCard'
-            >
-              <span>{{ editDescriptionButtonText }}</span>
-            </button>
+            <div class="row" style="margin-left: 0px">
+              <button
+                v-if='!editingDescription'
+                class="btn btn-sm btn-light"
+                type="button"
+                name="edit-description"
+                @click='startEditingDescriptionCard'
+              >
+                <span>{{ editDescriptionButtonText }}</span>
+              </button>
 
-            <!-- Close EditingDescription Button -->
-            <button
-              v-if='editingDescription'
-              class="btn btn-sm btn-light"
-              type="button"
-              name="edit-description"
-              @click='closeEditingDescription'
-            >
-              <span>✖️Cancel Edit</span>
-            </button>
+              <!-- Close EditingDescription Button -->
+              <button
+                v-if='editingDescription'
+                class="btn btn-sm btn-light"
+                type="button"
+                name="edit-description"
+                @click='closeEditingDescription'
+              >
+                <span>✖️Cancel Edit</span>
+              </button>
+
+              <!-- Add a label dropdown -->
+              <select v-model="selectedLabel" name="labels" class="form-control form-control-sm labels-select" @change='addLabelToCard'>
+                <option selected disabled>🏷️Select a label</option>
+                <option v-for="label in availableLabels" :value="label.id" :key='label.id'>
+                  {{ label.name }}
+                </option>
+              </select>
+            </div>
           </div>
           <div class="modal-footer">
-            <!-- Add a label dropdown -->
-            <select v-model="selectedLabel" name="labels" class="form-control form-control-sm labels-select" @change='addLabelToCard'>
-              <option selected disabled>🏷️Select a label</option>
-              <option v-for="label in availableLabels" :value="label.id" :key='label.id'>
-                {{ label.name }}
-              </option>
-            </select>
-
             <!-- Delete card button -->
             <button
-              class="btn btn-light btn-sm delete-card"
+              class="btn btn-light delete-card"
               type="button"
               name="delete-card"
               @click='deleteCard'
             >
-              <span>🗑️Delete Card</span>
+              <span>🗑️Delete</span>
             </button>
-            <button @click='saveCard' type="button" class="btn btn-sm btn-success">💾Save changes</button>
+
+            <!-- Save card button -->
+            <button @click='saveCardButton' type="button" class="btn btn-success">💾Save</button>
           </div>
         </div>
       </div>
@@ -115,7 +120,7 @@ export default {
   },
   computed: {
     editDescriptionButtonText: function() {
-      return this.card.description ? '🖋️Edit Description' : 'Add a more detailed description...'
+      return this.card.description ? '🖋️Edit Description' : '🖋️Add a description...'
     },
     availableLabels: function() {
       var label_ids = this.card.labels.map(label => label.id)
@@ -124,14 +129,14 @@ export default {
   },
   created() {
     this.$eventBus.$on('exitAllEditing', () => {
-      this.editingTitle = false;
-      this.editingDescription = false;
+      this.closeEditingTitleAndDescription();
       this.editing = false;
       this.$eventBus.$emit('deactivateEditingMode');
     });
     this.$eventBus.$on('activateSaving', () => {
       if (this.editingTitle || this.editingDescription) {
-        this.saveCard()
+        this.saveCard();
+        this.closeEditingTitleAndDescription();
       }
     });
   },
@@ -142,12 +147,20 @@ export default {
     },
     startEditingDescriptionCard: function() {
       this.editingDescription = true;
-      document.activeElement.blur();
     },
     closeEditingDescription: function() {
       this.description = this.card.description;
       this.editingDescription = false;
       document.activeElement.blur();
+    },
+    closeEditingTitleAndDescription: function () {
+      this.editingTitle = false;
+      this.editingDescription = false;
+    },
+    saveCardButton: function() {
+      this.saveCard();
+      this.closeEditingTitleAndDescription();
+      this.closeModal();
     },
     saveCard: function() {
       const data = new FormData;
@@ -163,17 +176,21 @@ export default {
           const list_index = window.store.lists.findIndex((item) => item.id == this.list.id);
           const card_index = window.store.lists[list_index].cards.findIndex((item) => item.id == this.card.id);
           window.store.lists[list_index].cards.splice(card_index, 1, data);
-
-          const closeModal = (this.editingTitle || this.editingDescription)
-          if (!closeModal) { this.editing = false }
-          this.editingTitle = false
-          this.editingDescription = false
-          this.$eventBus.$emit('deactivateEditingMode');
         }
       })
     },
+    closeModalButton: function(event) {
+      if(event.target.classList.contains('modal')) {
+        this.closeModal()
+       }
+    },
     closeModal: function(event) {
-      if(event.target.classList.contains('modal')) { this.editing = false }
+      this.editing = false
+      this.$eventBus.$emit('deactivateEditingMode');
+    },
+    startEditingTitle: function() {
+      this.editingTitle = true
+      setTimeout(function () { this.$refs.editingTitleTextArea.focus() }.bind(this), 10)
     },
     closeEditTitle: function(event) {
       if (!event.target.classList.contains('modal-title') && !event.target.classList.contains('form-control')) { this.editingTitle = false }
@@ -313,17 +330,23 @@ export default {
 }
 
 .labels-select {
-  width: 140px;
-  margin-right: 65px;
+  width: 150px;
+  margin-right: 10px;
+  margin-left: 10px;
+  border-radius: 3px;
 }
 
 .modal-dialog {
   margin-top: 100px;
   cursor: default;
+  overflow-y: initial !important
 }
 
 .modal-content {
   border-radius: 5px !important;
+  overflow-y: scroll;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 h5 {

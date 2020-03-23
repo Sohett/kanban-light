@@ -11,7 +11,8 @@ class User < ApplicationRecord
   def set_example
     list = self.lists.create(name: '👋Example List')
     card = list.cards.create(name: 'Example card', description: 'You can modify this example')
-    label = self.labels.create(name: '🔥Topic')
+    self.labels.create(name: '🔥Topic')
+    label = self.labels.create(name: '🧸Soft')
     card.labels << label
     card.save
   end

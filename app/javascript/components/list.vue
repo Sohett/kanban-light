@@ -23,7 +23,7 @@
       </transition-group>
     </draggable>
 
-    <button v-if='!editingList' @click='startEditing' class='add_card'>➕Add another card</button>
+    <button v-if='!editingList' @click='startEditing' class='add_card'><b>+</b> Add another card</button>
     <textarea
       ref='message'
       placeholder="Enter a title for this card"
