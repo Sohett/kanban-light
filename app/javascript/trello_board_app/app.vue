@@ -12,11 +12,14 @@ import newList from './components/new_list'
 
 export default {
   components: { draggable, list, newList },
-  props: ["original_lists"],
   data: function() {
     return {
-      lists: this.original_lists,
       editingMode: false
+    }
+  },
+  computed: {
+    lists() {
+      return this.$store.state.lists;
     }
   },
   methods: {

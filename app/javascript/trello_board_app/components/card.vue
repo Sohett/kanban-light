@@ -89,7 +89,7 @@
               class="btn btn-light delete-card"
               type="button"
               name="delete-card"
-              @click='deleteCard'
+              @click='removeCardFromList'
             >
               <span>🗑️Delete</span>
             </button>
@@ -114,7 +114,7 @@ export default {
       editingDescription: false,
       name: this.card.name,
       description: this.card.description || '',
-      labels: window.store.labels,
+      labels: this.$store.state.labels,
       selectedLabel: '🏷️Select a label'
     }
   },
@@ -173,9 +173,7 @@ export default {
         data: data,
         dataType: 'json',
         success: (data) => {
-          const list_index = window.store.lists.findIndex((item) => item.id == this.list.id);
-          const card_index = window.store.lists[list_index].cards.findIndex((item) => item.id == this.card.id);
-          window.store.lists[list_index].cards.splice(card_index, 1, data);
+          this.$store.commit('saveCard', data);
         }
       })
     },
@@ -195,17 +193,15 @@ export default {
     closeEditTitle: function(event) {
       if (!event.target.classList.contains('modal-title') && !event.target.classList.contains('form-control')) { this.editingTitle = false }
     },
-    deleteCard: function() {
+    removeCardFromList: function() {
       if (confirm(`🚨Please confirm the deletion of the "${this.card.name.toUpperCase()}" card.`)) {
         Rails.ajax({
           url: `/cards/${this.card.id}`,
           type: 'DELETE',
           dataType: 'json',
-          success: (data) => {
-            const list_index = window.store.lists.findIndex((item) => item.id == this.list.id);
-            const card_index = window.store.lists[list_index].cards.findIndex((item) => item.id == this.card.id);
-            window.store.lists[list_index].cards.splice(card_index, 1);
-
+          success: () => {
+            const data = { list_id: this.list.id, card_id: this.card.id }
+            this.$store.commit('removeCardFromList', data)
             this.editing = false
           }
         })
@@ -239,9 +235,7 @@ export default {
         data: data,
         dataType: 'json',
         success: (data) => {
-          const list_index = window.store.lists.findIndex((item) => item.id == this.list.id);
-          const card_index = window.store.lists[list_index].cards.findIndex((item) => item.id == this.card.id);
-          window.store.lists[list_index].cards[card_index].labels = data.labels;
+          this.$store.commit('removeLabelfromCard', data)
           document.activeElement.blur()
         }
       })

@@ -6,6 +6,7 @@ class ListsController < ApplicationController
   def index
     @lists = current_user.lists.sorted
     @labels = current_user.labels.all
+    @trello_board_data = trello_board_data
   end
 
   # GET /lists/1
@@ -68,14 +69,26 @@ class ListsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_list
-      @list = List.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def list_params
-      params.require(:list).permit(:name, :position)
-    end
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_list
+    @list = List.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def list_params
+    params.require(:list).permit(:name, :position)
+  end
+
+  def trello_board_data
+    {
+      initialState: {
+        lists: @lists.to_json(include: {
+          cards: {include: :labels}
+        }),
+        labels: @labels.to_json
+      }
+    }
+  end
 end

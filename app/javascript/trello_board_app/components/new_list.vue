@@ -5,7 +5,7 @@
     </a>
     <input placeholder="Enter list title..." ref='listTitle' v-if='editingNewList' v-model='listTitle' class="new-list-card">
     <div>
-      <button v-if='editingNewList' @click="submitList" class="btn btn-success">Add List</button>
+      <button v-if='editingNewList' @click="addList" class="btn btn-success">Add List</button>
       <a v-if='editingNewList' @click='editingNewList=false'>✖️</a>
     </div>
   </div>
@@ -24,7 +24,7 @@ export default {
       this.editingNewList = true
       this.$nextTick(() => { this.$refs.listTitle.focus() })
     },
-    submitList: function() {
+    addList: function() {
       let data = new FormData
       data.append("list[name]", this.listTitle)
 
@@ -34,7 +34,7 @@ export default {
         data: data,
         dataType: 'json',
         success: (data) => {
-          window.store.lists.push(data)
+          this.$store.commit('addList', data)
           this.editingNewList = false
           this.listTitle = ''
         }
@@ -48,7 +48,7 @@ export default {
     });
     this.$eventBus.$on('activateSaving', () => {
       if (this.editingNewList) {
-        this.submitList()
+        this.addList()
       }
     });
   },

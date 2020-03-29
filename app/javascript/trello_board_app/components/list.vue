@@ -2,7 +2,7 @@
   <div class='list' @mouseover='deleteListVisible = true' @mouseleave='deleteListVisible = false'>
     <div class="row">
       <h6 class="col-10">{{ list.name }}</h6>
-      <a v-if='deleteListVisible' @click='deleteList' class="col-1 delete-list">🗑️</a>
+      <a v-if='deleteListVisible' @click='removeList' class="col-1 delete-list">🗑️</a>
     </div>
     <draggable
       v-model="list.cards"
@@ -33,14 +33,14 @@
       class="form-control mb-2 trello_style-card"
     >
       </textarea>
-    <button v-if='editingList' @click="submitMessage" class="btn btn-success">Add Card</button>
+    <button v-if='editingList' @click="addCardToList" class="btn btn-success">Add Card</button>
     <a v-if='editingList' @click='editingList=false'>✖️</a>
   </div>
 </template>
 
 <script>
 import draggable from 'vuedraggable'
-import card from 'components/card'
+import card from './card'
 
 export default {
   components: { card, draggable },
@@ -66,7 +66,7 @@ export default {
     });
     this.$eventBus.$on('activateSaving', () => {
       if (this.editingList) {
-        this.submitMessage()
+        this.addCardToList()
       }
     });
   },
@@ -96,7 +96,7 @@ export default {
       this.editingList = true
       this.$nextTick(() => { this.$refs.message.focus() })
     },
-    submitMessage: function() {
+    addCardToList: function() {
       let data = new FormData
       data.append("card[list_id]", this.list.id)
       data.append("card[name]", this.message)
@@ -107,22 +107,20 @@ export default {
         data: data,
         dataType: 'json',
         success: (data) => {
-          const index = window.store.lists.findIndex(item => item.id == this.list.id)
-          window.store.lists[index].cards.push(data)
+          this.$store.commit('addCardToList', data)
           this.message = ''
           this.editingList = false
         }
       })
     },
-    deleteList: function() {
+    removeList: function() {
       if (confirm(`Please confirm the deletion of the "${this.list.name.toUpperCase()}" list.\n\n🚨All the related cards of this list will be destroyed in the process !`)) {
         Rails.ajax({
           url: `/lists/${this.list.id}`,
           type: "DELETE",
           dataType: 'json',
           success: (data) => {
-            const index = window.store.lists.findIndex(item => item.id == this.list.id)
-            window.store.lists.splice(index, 1)
+            this.$store.commit('removeList', this.list.id)
           }
         })
       }
