@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <%= favicon_link_tag asset_path('flame.png') %>
-    <title>Kanban Light</title>
-    <%= csrf_meta_tags %>
-    <%= action_cable_meta_tag %>
-    <%= stylesheet_link_tag     'application', media: 'all', 'data-turbolinks-tracks': 'reload' %>
-    <%= stylesheet_pack_tag     'application', media: 'all', 'data-turbolinks-tracks': 'reload' %>
-    <%= javascript_include_tag  'application', 'data-turbolinks-tracks': 'reload' %>
-    <%= javascript_pack_tag     'application', 'data-turbolinks-tracks': 'reload' %>
-  </head>
-  <body>
-    <%= render 'shared/navbar' %>
-    <%= render 'shared/flashes' %>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <%= favicon_link_tag asset_path('flame.png') %>
+  <title>Kanban Light</title>
+  <%= csrf_meta_tags %>
+  <%= action_cable_meta_tag %>
+  <%= stylesheet_link_tag     'application', media: 'all', 'data-turbolinks-tracks': 'reload' %>
+  <%= stylesheet_pack_tag     'application', media: 'all', 'data-turbolinks-tracks': 'reload' %>
+  <%= javascript_include_tag  'application', 'data-turbolinks-tracks': 'reload' %>
+  <%= javascript_pack_tag     'application', 'data-turbolinks-tracks': 'reload' %>
+</head>
+
+<body>
+  <%= render 'shared/navbar' %>
+  <%= render 'shared/flashes' %>
+  <div data-behavior='vue'>
     <%= yield %>
-  </body>
+  </div>
+</body>
+
 </html>

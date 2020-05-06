@@ -1,21 +1,35 @@
 <template>
-  <draggable v-model="lists" :options="{group: 'lists'}" class="board dragArea" id="app" @end="listMoved" :disabled="editingMode">
-    <list v-for="(list, index) in lists" :list='list' :key='list.id'></list>
+  <draggable
+    v-model="lists"
+    :options="{group: 'lists'}"
+    class="board dragArea"
+    id="app"
+    @end="listMoved"
+    :disabled="editingMode"
+  >
+    <list v-for="(list, index) in lists" :list="list" :key="list.id"></list>
     <new-list></new-list>
   </draggable>
 </template>
 
 <script>
-import draggable from 'vuedraggable'
-import list from './components/list'
-import newList from './components/new_list'
+import draggable from "vuedraggable";
+import list from "./components/list";
+import newList from "./components/new_list";
+import initializeState from "./store/initializeAppStore";
 
 export default {
+  props: {
+    initialState: {
+      type: Object,
+      required: true
+    }
+  },
   components: { draggable, list, newList },
   data: function() {
     return {
       editingMode: false
-    }
+    };
   },
   computed: {
     lists() {
@@ -24,42 +38,41 @@ export default {
   },
   methods: {
     listMoved: function(event) {
-      let data = new FormData;
+      let data = new FormData();
       data.append("list[position]", event.newIndex + 1);
 
       Rails.ajax({
         url: `/lists/${this.lists[event.newIndex].id}/move`,
         type: "PATCH",
         data: data,
-        dataType: 'json'
-      })
+        dataType: "json"
+      });
     }
   },
   created() {
-    this.$eventBus.$on('activateEditingMode', () => {
+    this.$eventBus.$on("activateEditingMode", () => {
       this.editingMode = true;
     });
-    this.$eventBus.$on('deactivateEditingMode', () => {
+    this.$eventBus.$on("deactivateEditingMode", () => {
       this.editingMode = false;
     });
   },
-  mounted () {
-    this._keyListener = function (e) {
+  mounted() {
+    this._keyListener = function(e) {
       if (e.key === "Escape") {
         e.preventDefault();
-        this.$eventBus.$emit('exitAllEditing');
-      } else if (e.keyCode === 13 && (e.metaKey || e.ctrlKey) ) {
+        this.$eventBus.$emit("exitAllEditing");
+      } else if (e.keyCode === 13 && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        this.$eventBus.$emit('activateSaving');
+        this.$eventBus.$emit("activateSaving");
       }
-    }
-    document.addEventListener('keydown', this._keyListener.bind(this))
-  },
-}
+    };
+    document.addEventListener("keydown", this._keyListener.bind(this));
+  }
+};
 </script>
 
 <style scoped>
-
 .dragArea {
   min-height: 20px;
 }
@@ -73,5 +86,4 @@ export default {
   white-space: nowrap;
   height: 100vh;
 }
-
 </style>

@@ -1,31 +1,20 @@
-import { instantiateTrelloBoardApp } from '../trello_board_app/main.js'
+import "bootstrap";
+import Vue from 'vue/dist/vue.esm'
+import TurbolinksAdapter from 'vue-turbolinks'
+import TrelloBoardApp from '../trello_board/trello_board_app.vue'
+import TextareaAutosize from 'vue-textarea-autosize'
+import store from '../trello_board/store'
 
-const AVAILABLE_VUE_APPS = {
-  trelloBoardApp: 'trelloBoarApp',
-  labelsApp: 'labelsApp',
-  motorbikeApp: 'motorbikeApp'
-}
+Vue.use(TextareaAutosize)
+Vue.use(TurbolinksAdapter)
 
-document.addEventListener('turbolinks:load', () => {
-  Object.values(AVAILABLE_VUE_APPS).forEach((item) => {
-    const vueAppId = `#${item}`
-    const element = document.querySelector(vueAppId)
+Vue.prototype.$eventBus = new Vue()
 
-    if (element) {
-      const initialState = JSON.parse(element.dataset.initialstate)
+Vue.component('trelloboardapp', TrelloBoardApp)
 
-      switch(element.id) {
-        case AVAILABLE_VUE_APPS.trelloBoardApp:
-          instantiateTrelloBoardApp(vueAppId, initialState);
-          break;
-        case AVAILABLE_VUE_APPS.labelsApp:
-          console.log(AVAILABLE_VUE_APPS.labelsApp);
-          break;
-        case AVAILABLE_VUE_APPS.motorbikeApp:
-          console.log(AVAILABLE_VUE_APPS.motorbikeApp)
-        default:
-          return
-      }
-    }
-  });
+document.addEventListener('turbolinks:load', () => {  
+  const app = new Vue({
+    el: '[data-behavior="vue"]',
+    store
+  })
 });

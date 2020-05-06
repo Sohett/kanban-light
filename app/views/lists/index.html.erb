@@ -1,1 +1,1 @@
-<%= tag.div id: :trelloBoarApp, data: @trello_board_data %>
+<TrelloBoardApp :initialState="<%= @trello_board_data.to_json %>"></TrelloBoardApp>
